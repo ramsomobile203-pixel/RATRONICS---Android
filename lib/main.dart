@@ -613,422 +613,425 @@ class _SalesScreenState extends State<SalesScreen> {
                   Card(child: ListTile(
                     title: const Text('Jumla ya mauzo'),
                     titleTextStyle: const TextStyle(fontWeight: FontWeight: FontWeight.bold, color: Colors.black, fontSize: 16),
-                    trailing: Text(money(widget.store.totalSales), style: const TextStyle(fontWeight: FontWeight.bold, color: brandRed)),
-                  )),
-                  ...widget.store.sales.map((s) => Card(child: ListTile(
-                    title: Text(s.productName),
-                    subtitle: Text('Idadi: ${s.quantity} • Mteja: ${s.customerName}'),
-                    trailing: Text(money(s.total)),
-                  ))),
-                ],
-              ),
-      ),
-    );
-  }
+trailing: Text(money(widget.store.totalSales), style: const TextStyle(fontWeight: FontWeight.bold, color: brandRed)),
+)),
+...widget.store.sales.map((s) => Card(child: ListTile(
+title: Text(s.productName),
+subtitle: Text('Idadi: ${s.quantity} • Mteja: ${s.customerName}'),
+trailing: Text(money(s.total)),
+))),
+],
+),
+),
+);
+}
 
-  Future<void> _addSale() async {
-    if (widget.store.products.isEmpty) {
-      showMessage(context, 'Ongeza bidhaa kwenye Stock kwanza.');
-      return;
-    }
-    final formKey = GlobalKey<FormState>();
-    Product selected = widget.store.products.first;
-    final qty = TextEditingController(text: '1');
-    final customer = TextEditingController(text: 'Cash customer');
+Future<void> _addSale() async {
+if (widget.store.products.isEmpty) {
+showMessage(context, 'Ongeza bidhaa kwenye Stock kwanza.');
+return;
+}
+final formKey = GlobalKey<FormState>();
+Product selected = widget.store.products.first;
+final qty = TextEditingController(text: '1');
+final customer = TextEditingController(text: 'Cash customer');
 
-    final sale = await showDialog<SalesRecord>(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          title: const Text('Rekodi mauzo'),
-          content: SizedBox(
-            width: 420,
-            child: Form(
-              key: formKey,
-              child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                DropdownButtonFormField<Product>(
-                  value: selected,
-                  isExpanded: true,
-                  decoration: const InputDecoration(labelText: 'Bidhaa', border: OutlineInputBorder()),
-                  items: widget.store.products.map((p) => DropdownMenuItem(value: p, child: Text('${p.name} (stock ${p.quantity})'))).toList(),
-                  onChanged: (p) { if (p != null) setDialogState(() => selected = p); },
-                ),
-                const SizedBox(height: 10),
-                field(qty, 'Idadi ya kuuza', number: true),
-                field(customer, 'Jina la mteja'),
-              ])),
-            ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Ghairi')),
-            FilledButton(onPressed: () {
-              if (!formKey.currentState!.validate()) return;
-              final count = int.tryParse(qty.text.trim()) ?? 0;
-              if (count < 1 || count > selected.quantity) {
-                showMessage(context, 'Idadi haipaswi kuzidi stock iliyopo.');
-                return;
-              }
-              Navigator.pop(ctx, SalesRecord(
-                productName: selected.name,
-                quantity: count,
-                unitPrice: selected.sellingPrice,
-                customerName: customer.text.trim(),
-              ));
-            }, child: const Text('Hifadhi mauzo')),
-          ],
-        ),
-      ),
-    );
-    if (sale != null) widget.store.addSale(sale);
-  }
+final sale = await showDialog<SalesRecord>(  
+  context: context,  
+  builder: (ctx) => StatefulBuilder(  
+    builder: (ctx, setDialogState) => AlertDialog(  
+      title: const Text('Rekodi mauzo'),  
+      content: SizedBox(  
+        width: 420,  
+        child: Form(  
+          key: formKey,  
+          child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [  
+            DropdownButtonFormField<Product>(  
+              value: selected,  
+              isExpanded: true,  
+              decoration: const InputDecoration(labelText: 'Bidhaa', border: OutlineInputBorder()),  
+              items: widget.store.products.map((p) => DropdownMenuItem(value: p, child: Text('${p.name} (stock ${p.quantity})'))).toList(),  
+              onChanged: (p) { if (p != null) setDialogState(() => selected = p); },  
+            ),  
+            const SizedBox(height: 10),  
+            field(qty, 'Idadi ya kuuza', number: true),  
+            field(customer, 'Jina la mteja'),  
+          ])),  
+        ),  
+      ),  
+      actions: [  
+        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Ghairi')),  
+        FilledButton(onPressed: () {  
+          if (!formKey.currentState!.validate()) return;  
+          final count = int.tryParse(qty.text.trim()) ?? 0;  
+          if (count < 1 || count > selected.quantity) {  
+            showMessage(context, 'Idadi haipaswi kuzidi stock iliyopo.');  
+            return;  
+          }  
+          Navigator.pop(ctx, SalesRecord(  
+            productName: selected.name,  
+            quantity: count,  
+            unitPrice: selected.sellingPrice,  
+            customerName: customer.text.trim(),  
+          ));  
+        }, child: const Text('Hifadhi mauzo')),  
+      ],  
+    ),  
+  ),  
+);  
+if (sale != null) widget.store.addSale(sale);
+
+}
 }
 
 class LoansScreen extends StatefulWidget {
-  const LoansScreen({super.key, required this.store});
-  final BusinessStore store;
+const LoansScreen({super.key, required this.store});
+final BusinessStore store;
 
-  @override
-  State<LoansScreen> createState() => _LoansScreenState();
+@override
+State<LoansScreen> createState() => _LoansScreenState();
 }
 
 class _LoansScreenState extends State<LoansScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Phone Loan Management')),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: brandRed,
-        foregroundColor: Colors.white,
-        onPressed: _addLoan,
-        icon: const Icon(Icons.add),
-        label: const Text('Sajili mkopo'),
-      ),
-      body: AnimatedBuilder(
-        animation: widget.store,
-        builder: (context, _) => widget.store.loans.isEmpty
-            ? const EmptyState(icon: Icons.account_balance_wallet, text: 'Bado hakuna mikopo iliyosajiliwa.')
-            : ListView.builder(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
-                itemCount: widget.store.loans.length,
-                itemBuilder: (context, i) {
-                  final loan = widget.store.loans[i];
-                  return Card(child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: ListTile(
-                      title: Text('${loan.customer.name} • ${loan.phoneModel}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text('Bei ya mteja: ${money(loan.agreedPrice)}\nKianzio: ${money(loan.deposit)} • Salio: ${money(loan.balance)}'),
-                      isThreeLine: true,
-                      trailing: IconButton(
-                        icon: const Icon(Icons.add_card, color: brandRed),
-                        tooltip: 'Rekodi malipo',
-                        onPressed: () => _recordPayment(loan),
-                      ),
-                    ),
-                  ));
-                },
-              ),
-      ),
-    );
-  }
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+appBar: AppBar(title: const Text('Phone Loan Management')),
+floatingActionButton: FloatingActionButton.extended(
+backgroundColor: brandRed,
+foregroundColor: Colors.white,
+onPressed: _addLoan,
+icon: const Icon(Icons.add),
+label: const Text('Sajili mkopo'),
+),
+body: AnimatedBuilder(
+animation: widget.store,
+builder: (context, _) => widget.store.loans.isEmpty
+? const EmptyState(icon: Icons.account_balance_wallet, text: 'Bado hakuna mikopo iliyosajiliwa.')
+: ListView.builder(
+padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
+itemCount: widget.store.loans.length,
+itemBuilder: (context, i) {
+final loan = widget.store.loans[i];
+return Card(child: Padding(
+padding: const EdgeInsets.all(8),
+child: ListTile(
+title: Text('${loan.customer.name} • ${loan.phoneModel}', style: const TextStyle(fontWeight: FontWeight.bold)),
+subtitle: Text('Bei ya mteja: ${money(loan.agreedPrice)}\nKianzio: ${money(loan.deposit)} • Salio: ${money(loan.balance)}'),
+isThreeLine: true,
+trailing: IconButton(
+icon: const Icon(Icons.add_card, color: brandRed),
+tooltip: 'Rekodi malipo',
+onPressed: () => _recordPayment(loan),
+),
+),
+));
+},
+),
+),
+);
+}
 
-  Future<void> _addLoan() async {
-    final formKey = GlobalKey<FormState>();
-    final name = TextEditingController();
-    final phone = TextEditingController();
-    final model = TextEditingController();
-    final price = TextEditingController();
-    final deposit = TextEditingController(text: '0');
+Future<void> _addLoan() async {
+final formKey = GlobalKey<FormState>();
+final name = TextEditingController();
+final phone = TextEditingController();
+final model = TextEditingController();
+final price = TextEditingController();
+final deposit = TextEditingController(text: '0');
 
-    final loan = await showDialog<LoanRecord>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Sajili mkopo wa simu'),
-        content: SizedBox(width: 420, child: Form(
-          key: formKey,
-          child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-            field(name, 'Jina la mteja'),
-            field(phone, 'Namba ya simu'),
-            field(model, 'Aina ya simu'),
-            field(price, 'Bei ambayo mteja atalipa (TSh)', number: true),
-            field(deposit, 'Kianzio (TSh)', number: true),
-            const Text('Bei ya kununulia simu haihitajiki kwenye kipengele hiki.',
-                style: TextStyle(fontSize: 12, color: brandRed)),
-          ])),
-        )),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Ghairi')),
-          FilledButton(onPressed: () {
-            if (!formKey.currentState!.validate()) return;
-            final total = double.parse(price.text);
-            final first = double.parse(deposit.text);
-            if (first > total) {
-              showMessage(context, 'Kianzio hakiwezi kuzidi bei ya mteja.');
-              return;
-            }
-            Navigator.pop(ctx, LoanRecord(
-              customer: Customer(name: name.text.trim(), phone: phone.text.trim()),
-              phoneModel: model.text.trim(),
-              agreedPrice: total,
-              deposit: first,
-            ));
-          }, child: const Text('Hifadhi')),
-        ],
-      ),
-    );
-    if (loan != null) widget.store.addLoan(loan);
-  }
+final loan = await showDialog<LoanRecord>(  
+  context: context,  
+  builder: (ctx) => AlertDialog(  
+    title: const Text('Sajili mkopo wa simu'),  
+    content: SizedBox(width: 420, child: Form(  
+      key: formKey,  
+      child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [  
+        field(name, 'Jina la mteja'),  
+        field(phone, 'Namba ya simu'),  
+        field(model, 'Aina ya simu'),  
+        field(price, 'Bei ambayo mteja atalipa (TSh)', number: true),  
+        field(deposit, 'Kianzio (TSh)', number: true),  
+        const Text('Bei ya kununulia simu haihitajiki kwenye kipengele hiki.',  
+            style: TextStyle(fontSize: 12, color: brandRed)),  
+      ])),  
+    )),  
+    actions: [  
+      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Ghairi')),  
+      FilledButton(onPressed: () {  
+        if (!formKey.currentState!.validate()) return;  
+        final total = double.parse(price.text);  
+        final first = double.parse(deposit.text);  
+        if (first > total) {  
+          showMessage(context, 'Kianzio hakiwezi kuzidi bei ya mteja.');  
+          return;  
+        }  
+        Navigator.pop(ctx, LoanRecord(  
+          customer: Customer(name: name.text.trim(), phone: phone.text.trim()),  
+          phoneModel: model.text.trim(),  
+          agreedPrice: total,  
+          deposit: first,  
+        ));  
+      }, child: const Text('Hifadhi')),  
+    ],  
+  ),  
+);  
+if (loan != null) widget.store.addLoan(loan);
 
-  Future<void> _recordPayment(LoanRecord loan) async {
-    final controller = TextEditingController();
-    final amount = await showDialog<double>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Rekodi malipo'),
-        content: field(controller, 'Kiasi kilicholipwa (TSh)', number: true),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Ghairi')),
-          FilledButton(onPressed: () {
-            final value = double.tryParse(controller.text.trim());
-            if (value == null || value <= 0 || value > loan.balance) {
-              showMessage(context, 'Weka kiasi sahihi kisichozidi salio.');
-              return;
-            }
-            Navigator.pop(ctx, value);
-          }, child: const Text('Hifadhi malipo')),
-        ],
-      ),
-    );
-    if (amount != null) widget.store.addLoanPayment(loan, amount);
-  }
+}
+
+Future<void> _recordPayment(LoanRecord loan) async {
+final controller = TextEditingController();
+final amount = await showDialog<double>(
+context: context,
+builder: (ctx) => AlertDialog(
+title: const Text('Rekodi malipo'),
+content: field(controller, 'Kiasi kilicholipwa (TSh)', number: true),
+actions: [
+TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Ghairi')),
+FilledButton(onPressed: () {
+final value = double.tryParse(controller.text.trim());
+if (value == null || value <= 0 || value > loan.balance) {
+showMessage(context, 'Weka kiasi sahihi kisichozidi salio.');
+return;
+}
+Navigator.pop(ctx, value);
+}, child: const Text('Hifadhi malipo')),
+],
+),
+);
+if (amount != null) widget.store.addLoanPayment(loan, amount);
+}
 }
 
 class InstalmentsScreen extends StatefulWidget {
-  const InstalmentsScreen({super.key, required this.store});
-  final BusinessStore store;
+const InstalmentsScreen({super.key, required this.store});
+final BusinessStore store;
 
-  @override
-  State<InstalmentsScreen> createState() => _InstalmentsScreenState();
+@override
+State<InstalmentsScreen> createState() => _InstalmentsScreenState();
 }
 
 class _InstalmentsScreenState extends State<InstalmentsScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Phone Instalment')),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: brandRed,
-        foregroundColor: Colors.white,
-        onPressed: _addInstalment,
-        icon: const Icon(Icons.add),
-        label: const Text('Sajili instalment'),
-      ),
-      body: AnimatedBuilder(
-        animation: widget.store,
-        builder: (context, _) => widget.store.instalments.isEmpty
-            ? const EmptyState(icon: Icons.payments, text: 'Bado hakuna wateja wa instalment.')
-            : ListView.builder(
-                padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
-                itemCount: widget.store.instalments.length,
-                itemBuilder: (context, i) {
-                  final item = widget.store.instalments[i];
-                  final paid = item.balance <= 0;
-                  return Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        children: [
-                          ListTile(
-                            title: Text('${item.customer.name} • ${item.phoneModel}',
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text(
-                              'Bei ya mteja: ${money(item.totalPrice)}\nSalio: ${money(item.balance)} • Muda: miezi ${item.months}\nMalipo: ${paid ? 'Yamekamilika' : 'Anaendelea'}\nSimu: ${item.handedOver ? 'Imekabidhiwa' : 'Bado haijakabidhiwa'}',
-                            ),
-                            isThreeLine: true,
-                          ),
-                          Wrap(
-                            spacing: 8,
-                            children: [
-                              OutlinedButton.icon(
-                                onPressed: paid ? null : () => _recordPayment(item),
-                                icon: const Icon(Icons.add_card),
-                                label: const Text('Rekodi malipo'),
-                              ),
-                              FilledButton.icon(
-                                onPressed: paid && !item.handedOver
-                                    ? () => _handover(item)
-                                    : null,
-                                icon: const Icon(Icons.local_shipping),
-                                label: const Text('Kamilisha makabidhiano'),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-      ),
-    );
-  }
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+appBar: AppBar(title: const Text('Phone Instalment')),
+floatingActionButton: FloatingActionButton.extended(
+backgroundColor: brandRed,
+foregroundColor: Colors.white,
+onPressed: _addInstalment,
+icon: const Icon(Icons.add),
+label: const Text('Sajili instalment'),
+),
+body: AnimatedBuilder(
+animation: widget.store,
+builder: (context, _) => widget.store.instalments.isEmpty
+? const EmptyState(icon: Icons.payments, text: 'Bado hakuna wateja wa instalment.')
+: ListView.builder(
+padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
+itemCount: widget.store.instalments.length,
+itemBuilder: (context, i) {
+final item = widget.store.instalments[i];
+final paid = item.balance <= 0;
+return Card(
+child: Padding(
+padding: const EdgeInsets.all(8),
+child: Column(
+children: [
+ListTile(
+title: Text('${item.customer.name} • ${item.phoneModel}',
+style: const TextStyle(fontWeight: FontWeight.bold)),
+subtitle: Text(
+'Bei ya mteja: ${money(item.totalPrice)}\nSalio: ${money(item.balance)} • Muda: miezi ${item.months}\nMalipo: ${paid ? 'Yamekamilika' : 'Anaendelea'}\nSimu: ${item.handedOver ? 'Imekabidhiwa' : 'Bado haijakabidhiwa'}',
+),
+isThreeLine: true,
+),
+Wrap(
+spacing: 8,
+children: [
+OutlinedButton.icon(
+onPressed: paid ? null : () => _recordPayment(item),
+icon: const Icon(Icons.add_card),
+label: const Text('Rekodi malipo'),
+),
+FilledButton.icon(
+onPressed: paid && !item.handedOver
+? () => _handover(item)
+: null,
+icon: const Icon(Icons.local_shipping),
+label: const Text('Kamilisha makabidhiano'),
+),
+],
+),
+const SizedBox(height: 8),
+],
+),
+),
+);
+},
+),
+),
+);
+}
 
-  Future<void> _addInstalment() async {
-    final formKey = GlobalKey<FormState>();
-    final name = TextEditingController();
-    final phone = TextEditingController();
-    final model = TextEditingController();
-    final price = TextEditingController();
-    final deposit = TextEditingController(text: '0');
-    final months = TextEditingController(text: '3');
+Future<void> _addInstalment() async {
+final formKey = GlobalKey<FormState>();
+final name = TextEditingController();
+final phone = TextEditingController();
+final model = TextEditingController();
+final price = TextEditingController();
+final deposit = TextEditingController(text: '0');
+final months = TextEditingController(text: '3');
 
-    final item = await showDialog<InstalmentRecord>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Sajili Phone Instalment'),
-        content: SizedBox(width: 420, child: Form(
-          key: formKey,
-          child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-            field(name, 'Jina la mteja'),
-            field(phone, 'Namba ya simu'),
-            field(model, 'Aina ya simu anayochagua'),
-            field(price, 'Bei ya mteja kulipa (TSh)', number: true),
-            field(deposit, 'Kianzio (TSh)', number: true),
-            field(months, 'Muda wa malipo kwa miezi', number: true),
-            const Text('Simu itakabidhiwa tu baada ya salio kufika TSh 0.',
-                style: TextStyle(fontSize: 12, color: brandRed)),
-          ])),
-        )),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Ghairi')),
-          FilledButton(onPressed: () {
-            if (!formKey.currentState!.validate()) return;
-            final total = double.parse(price.text);
-            final first = double.parse(deposit.text);
-            final duration = int.tryParse(months.text) ?? 0;
-            if (first > total || duration < 1) {
-              showMessage(context, 'Kianzio au muda si sahihi.');
-              return;
-            }
-            Navigator.pop(ctx, InstalmentRecord(
-              customer: Customer(name: name.text.trim(), phone: phone.text.trim()),
-              phoneModel: model.text.trim(),
-              totalPrice: total,
-              deposit: first,
-              months: duration,
-            ));
-          }, child: const Text('Hifadhi')),
-        ],
-      ),
-    );
-    if (item != null) widget.store.addInstalment(item);
-  }
+final item = await showDialog<InstalmentRecord>(  
+  context: context,  
+  builder: (ctx) => AlertDialog(  
+    title: const Text('Sajili Phone Instalment'),  
+    content: SizedBox(width: 420, child: Form(  
+      key: formKey,  
+      child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [  
+        field(name, 'Jina la mteja'),  
+        field(phone, 'Namba ya simu'),  
+        field(model, 'Aina ya simu anayochagua'),  
+        field(price, 'Bei ya mteja kulipa (TSh)', number: true),  
+        field(deposit, 'Kianzio (TSh)', number: true),  
+        field(months, 'Muda wa malipo kwa miezi', number: true),  
+        const Text('Simu itakabidhiwa tu baada ya salio kufika TSh 0.',  
+            style: TextStyle(fontSize: 12, color: brandRed)),  
+      ])),  
+    )),  
+    actions: [  
+      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Ghairi')),  
+      FilledButton(onPressed: () {  
+        if (!formKey.currentState!.validate()) return;  
+        final total = double.parse(price.text);  
+        final first = double.parse(deposit.text);  
+        final duration = int.tryParse(months.text) ?? 0;  
+        if (first > total || duration < 1) {  
+          showMessage(context, 'Kianzio au muda si sahihi.');  
+          return;  
+        }  
+        Navigator.pop(ctx, InstalmentRecord(  
+          customer: Customer(name: name.text.trim(), phone: phone.text.trim()),  
+          phoneModel: model.text.trim(),  
+          totalPrice: total,  
+          deposit: first,  
+          months: duration,  
+        ));  
+      }, child: const Text('Hifadhi')),  
+    ],  
+  ),  
+);  
+if (item != null) widget.store.addInstalment(item);
 
-  Future<void> _recordPayment(InstalmentRecord item) async {
-    final controller = TextEditingController();
-    final amount = await showDialog<double>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Rekodi instalment payment'),
-        content: field(controller, 'Kiasi kilicholipwa (TSh)', number: true),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Ghairi')),
-          FilledButton(onPressed: () {
-            final value = double.tryParse(controller.text.trim());
-            if (value == null || value <= 0 || value > item.balance) {
-              showMessage(context, 'Weka kiasi sahihi kisichozidi salio.');
-              return;
-            }
-            Navigator.pop(ctx, value);
-          }, child: const Text('Hifadhi malipo')),
-        ],
-      ),
-    );
-    if (amount != null) widget.store.addInstalmentPayment(item, amount);
-  }
+}
 
-  Future<void> _handover(InstalmentRecord item) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Thibitisha makabidhiano'),
-        content: Text('Malipo yamekamilika. Unathibitisha kuwa simu ya ${item.phoneModel} imekabidhiwa/kutumwa kwa ${item.customer.name}?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Bado')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Thibitisha')),
-        ],
-      ),
-    );
-    if (confirmed == true && item.balance <= 0) {
-      setState(() => item.handedOver = true);
-      widget.store.notifyListeners();
-      if (mounted) showMessage(context, 'Makabidhiano yamerekodiwa.');
-    }
-  }
+Future<void> _recordPayment(InstalmentRecord item) async {
+final controller = TextEditingController();
+final amount = await showDialog<double>(
+context: context,
+builder: (ctx) => AlertDialog(
+title: const Text('Rekodi instalment payment'),
+content: field(controller, 'Kiasi kilicholipwa (TSh)', number: true),
+actions: [
+TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Ghairi')),
+FilledButton(onPressed: () {
+final value = double.tryParse(controller.text.trim());
+if (value == null || value <= 0 || value > item.balance) {
+showMessage(context, 'Weka kiasi sahihi kisichozidi salio.');
+return;
+}
+Navigator.pop(ctx, value);
+}, child: const Text('Hifadhi malipo')),
+],
+),
+);
+if (amount != null) widget.store.addInstalmentPayment(item, amount);
+}
+
+Future<void> _handover(InstalmentRecord item) async {
+final confirmed = await showDialog<bool>(
+context: context,
+builder: (ctx) => AlertDialog(
+title: const Text('Thibitisha makabidhiano'),
+content: Text('Malipo yamekamilika. Unathibitisha kuwa simu ya ${item.phoneModel} imekabidhiwa/kutumwa kwa ${item.customer.name}?'),
+actions: [
+TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Bado')),
+FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Thibitisha')),
+],
+),
+);
+if (confirmed == true && item.balance <= 0) {
+setState(() => item.handedOver = true);
+widget.store.notifyListeners();
+if (mounted) showMessage(context, 'Makabidhiano yamerekodiwa.');
+}
+}
 }
 
 class ReportsScreen extends StatelessWidget {
-  const ReportsScreen({super.key, required this.store});
-  final BusinessStore store;
+const ReportsScreen({super.key, required this.store});
+final BusinessStore store;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Reports & Analytics')),
-      body: AnimatedBuilder(
-        animation: store,
-        builder: (context, _) => ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            reportCard('Jumla ya mauzo yaliyorekodiwa', money(store.totalSales), Icons.point_of_sale),
-            reportCard('Aina za bidhaa', '${store.products.length}', Icons.inventory_2),
-            reportCard('Jumla ya stock iliyopo', '${store.products.fold<int>(0, (sum, p) => sum + p.quantity)}', Icons.warehouse),
-            reportCard('Wateja', '${store.customers.length}', Icons.people),
-            reportCard('Mikopo ya simu', '${store.loans.length}', Icons.account_balance_wallet),
-            reportCard('Instalment', '${store.instalments.length}', Icons.payments),
-            const Padding(
-              padding: EdgeInsets.only(top: 12),
-              child: Text(
-                'Hizi ni takwimu za taarifa zilizoingizwa kwenye app hii wakati iko wazi. Uhifadhi wa kudumu na online sync bado vinahitaji kuongezwa.',
-                style: TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+@override
+Widget build(BuildContext context) {
+return Scaffold(
+appBar: AppBar(title: const Text('Reports & Analytics')),
+body: AnimatedBuilder(
+animation: store,
+builder: (context, _) => ListView(
+padding: const EdgeInsets.all(16),
+children: [
+reportCard('Jumla ya mauzo yaliyorekodiwa', money(store.totalSales), Icons.point_of_sale),
+reportCard('Aina za bidhaa', '${store.products.length}', Icons.inventory_2),
+reportCard('Jumla ya stock iliyopo', '${store.products.fold<int>(0, (sum, p) => sum + p.quantity)}', Icons.warehouse),
+reportCard('Wateja', '${store.customers.length}', Icons.people),
+reportCard('Mikopo ya simu', '${store.loans.length}', Icons.account_balance_wallet),
+reportCard('Instalment', '${store.instalments.length}', Icons.payments),
+const Padding(
+padding: EdgeInsets.only(top: 12),
+child: Text(
+'Hizi ni takwimu za taarifa zilizoingizwa kwenye app hii wakati iko wazi. Uhifadhi wa kudumu na online sync bado vinahitaji kuongezwa.',
+style: TextStyle(color: Colors.grey, fontSize: 12),
+),
+),
+],
+),
+),
+);
+}
 
-  Widget reportCard(String title, String value, IconData icon) {
-    return Card(
-      child: ListTile(
-        leading: Icon(icon, color: brandRed, size: 30),
-        title: Text(title),
-        trailing: Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: brandRed)),
-      ),
-    );
-  }
+Widget reportCard(String title, String value, IconData icon) {
+return Card(
+child: ListTile(
+leading: Icon(icon, color: brandRed, size: 30),
+title: Text(title),
+trailing: Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: brandRed)),
+),
+);
+}
 }
 
 class EmptyState extends StatelessWidget {
-  const EmptyState({super.key, required this.icon, required this.text});
-  final IconData icon;
-  final String text;
+const EmptyState({super.key, required this.icon, required this.text});
+final IconData icon;
+final String text;
 
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 58, color: Colors.grey),
-            const SizedBox(height: 14),
-            Text(text, textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
-          ],
-        ),
-      ),
-    );
-  }
+@override
+Widget build(BuildContext context) {
+return Center(
+child: Padding(
+padding: const EdgeInsets.all(28),
+child: Column(
+mainAxisSize: MainAxisSize.min,
+children: [
+Icon(icon, size: 58, color: Colors.grey),
+const SizedBox(height: 14),
+Text(text, textAlign: TextAlign.center, style: const TextStyle(color: Colors.grey)),
+],
+),
+),
+);
+}
 }
