@@ -140,9 +140,39 @@ class BusinessStore extends ChangeNotifier {
   final List<InstalmentRecord> instalments = [];
   final List<SalesRecord> sales = [];
 
-  void addProduct(Product product) {
+  static const String _productsKey = 'ratronics_products';
+
+  Future<void> loadProducts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getString(_productsKey);
+
+    if (saved != null) {
+      final List<dynamic> decoded = jsonDecode(saved);
+      products
+        ..clear()
+        ..addAll(
+          decoded.map(
+            (item) => Product.fromJson(
+              Map<String, dynamic>.from(item as Map),
+            ),
+          ),
+        );
+      notifyListeners();
+    }
+  }
+
+  Future<void> _saveProducts() async {
+    final prefs = await SharedPreferences.getInstance();
+    final encoded = jsonEncode(
+      products.map((product) => product.toJson()).toList(),
+    );
+    await prefs.setString(_productsKey, encoded);
+  }
+
+  Future<void> addProduct(Product product) async {
     products.add(product);
     notifyListeners();
+    await _saveProducts();
   }
 
   void addCustomer(Customer customer) {
@@ -170,20 +200,27 @@ class BusinessStore extends ChangeNotifier {
   }
 
   void addLoanPayment(LoanRecord loan, double amount) {
-    loan.balance = (loan.balance - amount).clamp(0, double.infinity).toDouble();
-    loan.payments.add(PaymentRecord(amount: amount, date: DateTime.now()));
+    loan.balance =
+        (loan.balance - amount).clamp(0, double.infinity).toDouble();
+    loan.payments.add(
+      PaymentRecord(amount: amount, date: DateTime.now()),
+    );
     notifyListeners();
   }
 
   void addInstalmentPayment(InstalmentRecord item, double amount) {
     item.balance =
         (item.balance - amount).clamp(0, double.infinity).toDouble();
-    item.payments.add(PaymentRecord(amount: amount, date: DateTime.now()));
+    item.payments.add(
+      PaymentRecord(amount: amount, date: DateTime.now()),
+    );
     notifyListeners();
   }
 
-  double get totalSales => sales.fold(0, (sum, item) => sum + item.total);
+  double get totalSales =>
+      sales.fold(0, (sum, item) => sum + item.total);
 }
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
