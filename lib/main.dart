@@ -48,7 +48,28 @@ class Product {
   final double sellingPrice;
   final double purchasePrice;
   int quantity;
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'ram': ram,
+        'storage': storage,
+        'sellingPrice': sellingPrice,
+        'purchasePrice': purchasePrice,
+        'quantity': quantity,
+      };
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      name: json['name'] as String,
+      ram: json['ram'] as String,
+      storage: json['storage'] as String,
+      sellingPrice: (json['sellingPrice'] as num).toDouble(),
+      purchasePrice: (json['purchasePrice'] as num).toDouble(),
+      quantity: (json['quantity'] as num).toInt(),
+    );
+  }
 }
+
 
 class Customer {
   Customer({required this.name, required this.phone});
