@@ -612,7 +612,7 @@ class _SalesScreenState extends State<SalesScreen> {
                 children: [
                   Card(child: ListTile(
                     title: const Text('Jumla ya mauzo'),
-                    titleTextStyle: const TextStyle(fontWeight: FontWeight: FontWeight.bold, color: Colors.black, fontSize: 16),
+                    titleTextStyle: const TextStyle(fontWeight:FontWeight.bold, color: Colors.black, fontSize: 16),
 trailing: Text(money(widget.store.totalSales), style: const TextStyle(fontWeight: FontWeight.bold, color: brandRed)),
 )),
 ...widget.store.sales.map((s) => Card(child: ListTile(
