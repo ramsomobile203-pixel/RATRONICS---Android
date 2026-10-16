@@ -545,7 +545,8 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
     final result = await showDialog<Product>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
         title: const Text('Ongeza bidhaa'),
         content: SizedBox(
           width: 420,
@@ -614,17 +615,23 @@ children: [
             ),
           ),
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Ghairi')),
+       actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Ghairi'),
+          ),
           FilledButton(
             onPressed: () {
               if (!formKey.currentState!.validate()) return;
+
               Navigator.pop(
                 dialogContext,
                 Product(
                   name: name.text.trim(),
                   ram: ram.text.trim().isEmpty ? '-' : ram.text.trim(),
-                  storage: storage.text.trim().isEmpty ? '-' : storage.text.trim(),
+                  storage: storage.text.trim().isEmpty
+                      ? '-'
+                      : storage.text.trim(),
                   sellingPrice: double.parse(selling.text.trim()),
                   purchasePrice: double.parse(purchase.text.trim()),
                   quantity: int.parse(quantity.text.trim()),
@@ -636,12 +643,13 @@ children: [
           ),
         ],
       ),
-    );
-    if (result != null) {
-      await widget.store.addProduct(result);
-    }
+    ),
+  );
+
+  if (result != null) {
+    await widget.store.addProduct(result);
   }
-}
+  }
 
 Widget field(
   TextEditingController controller,
