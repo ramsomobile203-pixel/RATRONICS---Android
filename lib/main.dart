@@ -233,6 +233,12 @@ class _HomeScreenState extends State<HomeScreen> {
   final BusinessStore store = BusinessStore();
 
   @override
+  void initState() {
+    super.initState();
+    store.loadProducts();
+  }
+  
+  @override
   void dispose() {
     store.dispose();
     super.dispose();
