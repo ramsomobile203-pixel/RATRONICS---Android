@@ -513,6 +513,35 @@ class _ProductsScreenState extends State<ProductsScreen> {
     final selling = TextEditingController();
     final purchase = TextEditingController();
     final quantity = TextEditingController(text: '1');
+    String? imagePath;
+
+    Future<void> pickProductImage(
+  ImageSource source,
+  StateSetter updateDialog,
+) async {
+  final picker = ImagePicker();
+
+  final picked = await picker.pickImage(
+    source: source,
+    imageQuality: 80,
+    maxWidth: 1600,
+  );
+
+  if (picked == null) return;
+
+  final directory = await getApplicationDocumentsDirectory();
+  final dot = picked.path.lastIndexOf('.');
+  final extension =
+      dot >= 0 ? picked.path.substring(dot) : '.jpg';
+
+  final savedImage = await File(picked.path).copy(
+    '${directory.path}/product_${DateTime.now().microsecondsSinceEpoch}$extension',
+  );
+
+  updateDialog(() {
+    imagePath = savedImage.path;
+  });
+}
 
     final result = await showDialog<Product>(
       context: context,
@@ -525,9 +554,57 @@ class _ProductsScreenState extends State<ProductsScreen> {
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: [
-                  field(name, 'Jina la simu/bidhaa'),
-                  field(ram, 'RAM (mf. 4GB)', required: false),
+children: [
+  if (imagePath != null)
+    Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Image.file(
+        File(imagePath!),
+        height: 140,
+        fit: BoxFit.contain,
+      ),
+    )
+  else
+    const Padding(
+      padding: EdgeInsets.only(bottom: 12),
+      child: Icon(
+        Icons.add_a_photo,
+        size: 64,
+        color: Colors.grey,
+      ),
+    ),
+  Row(
+    children: [
+      Expanded(
+        child: OutlinedButton.icon(
+          onPressed: () async {
+            await pickProductImage(
+              ImageSource.camera,
+              setDialogState,
+            );
+          },
+          icon: const Icon(Icons.camera_alt),
+          label: const Text('Camera'),
+        ),
+      ),
+      const SizedBox(width: 8),
+      Expanded(
+        child: OutlinedButton.icon(
+          onPressed: () async {
+            await pickProductImage(
+              ImageSource.gallery,
+              setDialogState,
+            );
+          },
+          icon: const Icon(Icons.photo_library),
+          label: const Text('Gallery'),
+        ),
+      ),
+    ],
+  ),
+  const SizedBox(height: 12),
+  field(name, 'Jina la simu/bidhaa'),
+                    field(ram, 'RAM (mf. 4GB)', required: false),
                   field(storage, 'Storage (mf. 64GB)', required: false),
                   field(selling, 'Bei ya kuuza (TSh)', number: true),
                   field(purchase, 'Bei ya kununulia (TSh)', number: true),
@@ -551,6 +628,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                   sellingPrice: double.parse(selling.text.trim()),
                   purchasePrice: double.parse(purchase.text.trim()),
                   quantity: int.parse(quantity.text.trim()),
+                  imagePath: imagePath,
                 ),
               );
             },
@@ -559,7 +637,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
         ],
       ),
     );
-    if (result != null) widget.store.addProduct(result);
+    if (result != null) {
+      await widget.store.addProduct(result);
+    }
   }
 }
 
