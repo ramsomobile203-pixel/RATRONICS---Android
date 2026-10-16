@@ -646,9 +646,9 @@ children: [
     ),
   );
 
-  if (result != null) {
-    await widget.store.addProduct(result);
-  }
+    if (result != null) {
+       await widget.store.addProduct(result);
+    }
   }
 
 Widget field(
