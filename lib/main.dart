@@ -43,6 +43,7 @@ class Product {
     required this.sellingPrice,
     required this.quantity,
     required this.purchasePrice,
+    this.imagePath,
   });
 
   final String name;
@@ -50,6 +51,7 @@ class Product {
   final String storage;
   final double sellingPrice;
   final double purchasePrice;
+  final String? imagePath;
   int quantity;
 
   Map<String, dynamic> toJson() => {
@@ -59,6 +61,7 @@ class Product {
         'sellingPrice': sellingPrice,
         'purchasePrice': purchasePrice,
         'quantity': quantity,
+        'imagePath': imagePath,
       };
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -69,10 +72,10 @@ class Product {
       sellingPrice: (json['sellingPrice'] as num).toDouble(),
       purchasePrice: (json['purchasePrice'] as num).toDouble(),
       quantity: (json['quantity'] as num).toInt(),
+      imagePath: json['imagePath'] as String?,
     );
   }
 }
-
 
 class Customer {
   Customer({required this.name, required this.phone});
