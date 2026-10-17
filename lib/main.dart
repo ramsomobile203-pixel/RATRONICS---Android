@@ -676,6 +676,41 @@ Widget field(
 }
 }
 
+Widget field(
+  TextEditingController controller,
+  String label, {
+  bool number = false,
+  bool required = true,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: TextFormField(
+      controller: controller,
+      keyboardType: number
+          ? const TextInputType.numberWithOptions(decimal: true)
+          : TextInputType.text,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+      validator: (value) {
+        if (required &&
+            (value == null || value.trim().isEmpty)) {
+          return 'Jaza taarifa hii';
+        }
+        if (number &&
+            value != null &&
+            value.trim().isNotEmpty &&
+            (double.tryParse(value.trim()) == null ||
+                double.parse(value.trim()) < 0)) {
+          return 'Weka namba sahihi';
+        }
+        return null;
+      },
+    ),
+  );
+}
+
 class CustomersScreen extends StatefulWidget {
   const CustomersScreen({super.key, required this.store});
   final BusinessStore store;
