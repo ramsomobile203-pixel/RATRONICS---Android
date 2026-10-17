@@ -615,7 +615,7 @@ children: [
             ),
           ),
         ),
-       actions: [
+        actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Ghairi'),
@@ -673,6 +673,7 @@ Widget field(
       },
     ),
   );
+}
 }
 
 class CustomersScreen extends StatefulWidget {
