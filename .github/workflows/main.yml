@@ -29,10 +29,17 @@ jobs:
       - name: Check Flutter project
         run: flutter doctor -v
 
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Generate RAMSO App Icon
+        run: dart run flutter_launcher_icons
+
       - name: Build APK
         run: |
           flutter create --platforms=android .
           flutter pub get
+          dart run flutter_launcher_icons
           flutter build apk --release
 
       - name: Upload APK
@@ -41,3 +48,4 @@ jobs:
           name: RATRONICS-Android-APK
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
+          
